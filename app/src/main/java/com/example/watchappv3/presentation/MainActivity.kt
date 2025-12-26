@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.DisposableEffect
+
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -45,6 +45,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        WatchWebSocketClient.connect()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        WatchWebSocketClient.disconnect()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -55,16 +65,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WatchHomeScreen() {
-
-    // 🔌 WebSocket lifecycle tied to UI
-    DisposableEffect(Unit) {
-        WatchWebSocketClient.connect()
-
-        onDispose {
-            WatchWebSocketClient.disconnect()
-        }
-    }
-
     MessagesUI()
 }
 
@@ -84,17 +84,6 @@ fun AppNav() {
 
 @Composable
 fun WatchApp() {
-
-    DisposableEffect(Unit) {
-        // UI appeared → connect
-        WatchWebSocketClient.connect()
-
-        onDispose {
-            // UI dismissed (swipe) → disconnect
-            WatchWebSocketClient.disconnect()
-        }
-    }
-
     MessagesUI()
 }
 

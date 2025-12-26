@@ -28,7 +28,7 @@ object WatchWebSocketClient {
 
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d(TAG, "CONNECTED")
-                webSocket.send("ping")   // 👈 send message to server
+                webSocket.send("hi")   // 👈 send message to server
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -62,20 +62,16 @@ object WatchWebSocketClient {
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Log.e(TAG, "ERROR", t)
+                Log.e(TAG, "ERROR response=$response", t)
                 socket = null
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                Log.d(TAG, "CLOSED")
+                Log.d(TAG, "CLOSED code=$code reason=$reason")
                 socket = null
             }
-        })
-    }
 
-    fun disconnect1() {
-        socket?.close(1000, "bye")
-        socket = null
+        })
     }
 
     fun disconnect() {
