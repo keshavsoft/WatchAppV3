@@ -28,11 +28,37 @@ object WatchWebSocketClient {
 
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d(TAG, "CONNECTED")
+                webSocket.send("hi")   // 👈 send message to server
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                Log.d(TAG, "MSG: $text")
-                _messages.value = _messages.value + text
+                try {
+                    val json = org.json.JSONObject(text)
+                    val type = json.getString("type")
+
+                    when (type) {
+                        "time" -> {
+                            val millis = json.getLong("value")
+                            val date = java.util.Date(millis)
+
+                            val formatter = java.text.SimpleDateFormat(
+                                "HH:mm:ss",
+                                java.util.Locale.getDefault()
+                            )
+
+                            _messages.value = _messages.value + "🕒 ${formatter.format(date)}"
+                        }
+
+                        "text" -> {
+                            val message = json.getString("value")
+                            _messages.value = _messages.value + "💬 $message"
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    // fallback (old server / invalid payload)
+                    _messages.value = _messages.value + text
+                }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -47,8 +73,15 @@ object WatchWebSocketClient {
         })
     }
 
-    fun disconnect() {
+    fun disconnect1() {
         socket?.close(1000, "bye")
         socket = null
     }
+
+    fun disconnect() {
+        socket?.close(1000, "bye")
+        socket = null
+        _messages.value = emptyList()   // 🔥 IMPORTANT
+    }
+
 }

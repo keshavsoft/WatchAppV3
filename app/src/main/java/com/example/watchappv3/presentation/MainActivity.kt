@@ -22,27 +22,105 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.DisposableEffect
+import androidx.wear.compose.navigation.SwipeDismissableNavHost
+import androidx.wear.compose.navigation.composable
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    fun onCreate1(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        WatchWebSocketClient.connect()
-
         setContent {
-            WatchApp()
+            val navController = rememberSwipeDismissableNavController()
 
+            SwipeDismissableNavHost(
+                navController = navController,
+                startDestination = "main"
+            ) {
+                composable("main") {
+                    WatchApp()
+                }
+            }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        WatchWebSocketClient.disconnect()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            AppNav()
+        }
+    }
+}
+
+@Composable
+fun WatchHomeScreen() {
+
+    // 🔌 WebSocket lifecycle tied to UI
+    DisposableEffect(Unit) {
+        WatchWebSocketClient.connect()
+
+        onDispose {
+            WatchWebSocketClient.disconnect()
+        }
+    }
+
+    MessagesUI()
+}
+
+@Composable
+fun AppNav() {
+    val navController = rememberSwipeDismissableNavController()
+
+    SwipeDismissableNavHost(
+        navController = navController,
+        startDestination = "home"
+    ) {
+        composable("home") {
+            WatchHomeScreen()
+        }
     }
 }
 
 @Composable
 fun WatchApp() {
+
+    DisposableEffect(Unit) {
+        // UI appeared → connect
+        WatchWebSocketClient.connect()
+
+        onDispose {
+            // UI dismissed (swipe) → disconnect
+            WatchWebSocketClient.disconnect()
+        }
+    }
+
+    MessagesUI()
+}
+
+@Composable
+fun MessagesUI() {
+
+    val messages = WatchWebSocketClient
+        .messages
+        .collectAsState(initial = emptyList())
+        .value
+
+    MaterialTheme {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            autoCentering = AutoCenteringParams(itemIndex = 0),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(messages) { msg ->
+                MessageBubble(msg)
+            }
+        }
+    }
+}
+
+@Composable
+fun WatchApp1() {
 
     val messages = WatchWebSocketClient
         .messages

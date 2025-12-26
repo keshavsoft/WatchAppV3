@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.core.splashscreen)
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.compose.navigation)
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
