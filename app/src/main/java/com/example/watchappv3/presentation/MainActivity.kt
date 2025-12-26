@@ -113,7 +113,7 @@ fun MessagesUI() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(messages) { msg ->
-                MessageBubble(msg)
+                MessageBubble(msg, isTime = msg.startsWith("🕒"))
             }
         }
     }
@@ -140,9 +140,8 @@ fun WatchApp1() {
     }
 }
 
-
 @Composable
-fun MessageBubble(text: String) {
+fun MessageBubble1(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth(0.9f)        // round-safe width
@@ -164,3 +163,27 @@ fun MessageBubble(text: String) {
     }
 }
 
+@Composable
+fun MessageBubble(
+    text: String,
+    isTime: Boolean = false
+) {
+    val bgColor = if (isTime) Color(0xFF0D47A1) else Color(0xFF1F1F1F)
+    val fontSize = if (isTime) 11.sp else 12.sp
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .padding(vertical = 6.dp)
+            .background(bgColor, RoundedCornerShape(14.dp))
+            .padding(10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = fontSize,
+            textAlign = TextAlign.Center
+        )
+    }
+}

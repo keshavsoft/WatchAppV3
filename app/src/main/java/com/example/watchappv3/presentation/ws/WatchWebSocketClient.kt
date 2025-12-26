@@ -28,7 +28,7 @@ object WatchWebSocketClient {
 
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d(TAG, "CONNECTED")
-                webSocket.send("hi")   // 👈 send message to server
+                webSocket.send("ping")   // 👈 send message to server
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
